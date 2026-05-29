@@ -1,0 +1,21 @@
+{
+    "full_name": "Dwishank Patil",
+    "name": "Dinshaw",
+    "current_role": "AI/ML Engineer",
+    "location": "Mumbai",
+    "email": "dwishankk@gmail.com",
+    "linkedin": "linkedin.com/in/DwishankPatil",
+    "specialties": [
+      "Your specialty 1",
+      "Your specialty 2",
+      "Your specialty 3"
+    ],
+    "years_experience": 5,
+    "education": [
+      {
+        "degree": "Masters in Computer Applications",
+        "institution": "Veermata jijabai Technological Institute",
+        "year": "2020"
+      }
+    ]
+  }
