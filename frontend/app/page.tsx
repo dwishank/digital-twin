@@ -17,7 +17,7 @@ export default function Home() {
           </div>
 
           <footer className="mt-8 text-center text-sm text-gray-500">
-            <p>Week 2: Building Your Digital Twin</p>
+            <p></p>
           </footer>
         </div>
       </div>
