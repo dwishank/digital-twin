@@ -19,8 +19,5 @@ with open("./data/summary.txt", "r", encoding="utf-8") as f:
 with open("./data/style.txt", "r", encoding="utf-8") as f:
     style = f.read()
 
-with open("./data/projects.txt", "r", encoding="utf-8") as f:
-    projects = f.read()
-
 with open("./data/facts.json", "r", encoding="utf-8") as f:
     facts = json.load(f)

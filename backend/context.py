@@ -23,8 +23,6 @@ Here is some basic information about {name}:
 Here are summary notes from {name}:
 {summary}
 
-Here are {name}'s projects:
-{projects}
 
 Here is the LinkedIn profile of {name}:
 {linkedin}
