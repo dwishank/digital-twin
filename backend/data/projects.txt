@@ -1,138 +1,42 @@
-# What The Fruit — iOS Application
+PROJECT: What The Fruit — iOS Application
 
-## Overview
-"What The Fruit" is a real-time fruit identification iOS application built entirely using Apple's ecosystem. The app uses the device camera to identify fruits in real time and instantly displays nutritional facts for the identified fruit. It is live on the App Store.
+What The Fruit is a real-time fruit identification iOS app I built entirely within Apple's ecosystem. It is live on the App Store. The app uses the device camera to identify fruits in real time and instantly shows nutritional facts for whatever fruit it detects.
 
-## Tech Stack
-- Language: Swift
-- Framework: SwiftUI for UI, AVFoundation for real-time camera feed
-- ML Framework: TensorFlow (training), Core ML (on-device inference)
-- Model conversion: TensorFlow to Core ML using coremltools
-- Nutritional data: Custom local database of nutritional facts per fruit
+I built it in Swift using SwiftUI for the interface and AVFoundation to capture live camera frames. For machine learning I trained a convolutional neural network on hundreds of thousands of fruit images covering 30 to 50 fruit classes including apple, banana, mango, orange, grapes, watermelon, strawberry, pineapple and more. The model achieved 90 percent accuracy on the validation set. I then converted it from TensorFlow to Core ML format so all inference runs entirely on-device with no network call needed, which means real-time classification at camera frame rate with no latency.
 
-## Machine Learning
-- Trained a convolutional neural network (CNN) on a dataset of lakhs (hundreds of thousands) of fruit images
-- Covered 30 to 50 fruit classes including common fruits like apple, banana, mango, orange, grapes, watermelon, strawberry, pineapple and more
-- Achieved 90% classification accuracy on the validation set
-- Model was converted from TensorFlow to Core ML format so inference runs entirely on-device — no network call needed for prediction
-- On-device inference means real-time classification at camera frame rate with no latency
+Each frame from the camera is passed through the Core ML model and the prediction result along with a confidence score appears as an overlay on the live feed. When a fruit is identified the app looks up a local nutritional database and displays calories, carbohydrates, protein, fat, fibre, and vitamins per 100g in clean SwiftUI cards. Everything works fully offline once the app is installed.
 
-## Real-Time Identification
-- Used AVFoundation to capture live camera frames
-- Each frame is passed through the Core ML model for classification
-- Prediction result and confidence score are displayed as an overlay on the camera feed
-- Designed for fast response — classification happens within milliseconds on device
-
-## Nutritional Facts Feature
-- On identification, the app looks up a local database for the detected fruit
-- Displays calories, carbohydrates, protein, fat, fibre, vitamins per 100g
-- Clean SwiftUI cards showing nutritional breakdown
-- Works fully offline once the app is installed
-
-## Deployment
-- Published on the Apple App Store
-- Went through Apple's review process including CoreML model validation
-- Optimised model size for App Store distribution and device storage constraints
-
-## Key Achievements
-- Trained on lakhs of images across 30 to 50 fruit classes
-- 90% validation accuracy
-- Real-time inference at camera frame rate using Core ML on-device
-- Full nutritional information database bundled in app
-- Live on the App Store
+The app went through Apple's full review process including Core ML model validation, and I optimised the model size for App Store distribution and on-device storage constraints.
 
 
-# Enterprise RAG Assistant — Digital Twin (dwishank.in)
+PROJECT: Enterprise RAG Assistant — Digital Twin (dwishank.in)
 
-## Overview
-A production RAG chatbot deployed at dwishank.in that acts as a digital twin of Dwishank. Visitors to the website can chat with an AI that answers questions about Dwishank's background, skills, and projects as if it were Dwishank himself. Built with FastAPI, OpenAI, and AWS.
+I built a production RAG chatbot deployed at dwishank.in that acts as a digital twin of me. Visitors to the site can chat with an AI that answers questions about my background, skills, and projects as if it were me speaking directly.
 
-## Tech Stack
-- Backend: FastAPI with Mangum adapter for AWS Lambda (ASGI on serverless)
-- LLM: OpenAI GPT-4o-mini for chat completions
-- Embeddings: OpenAI text-embedding-3-small for document chunks
-- Retrieval: Hybrid BM25 + cosine vector search
-- Memory: Conversational history stored in AWS S3 as JSON per session
-- Infrastructure: AWS Lambda, S3, IAM — all provisioned with Terraform
-- Frontend: Next.js with TypeScript, deployed on Vercel
+The backend is FastAPI running on AWS Lambda via the Mangum adapter, which lets me run an ASGI app serverlessly. The LLM is OpenAI GPT-4o-mini and embeddings use OpenAI text-embedding-3-small. For retrieval I use a hybrid approach that combines BM25 keyword scoring with cosine vector similarity, both normalised and blended with a tunable alpha weight. The top 5 most relevant chunks are injected into the system prompt rather than dumping the full document on every request, which improved answer relevance by around 45 percent over that naive baseline.
 
-## RAG Pipeline
-- Personal knowledge base built from LinkedIn PDF, summary notes, project writeups, and style notes
-- At startup the corpus is chunked using semantic chunking — splits on paragraph boundaries, merges short paragraphs, caps at 300 words per chunk
-- Each chunk is embedded using text-embedding-3-small and stored in memory
-- At query time, hybrid retrieval combines BM25 keyword scores and cosine vector similarity, both normalised and blended with a tunable alpha weight
-- Top 5 most relevant chunks are injected into the system prompt instead of the full corpus
-- This improved answer relevance by approximately 45% over the naive baseline of dumping the full document into every request
+The knowledge base is built from my LinkedIn PDF, summary notes, project writeups, and style notes. At startup the corpus is chunked using semantic chunking — splitting on paragraph boundaries, merging short paragraphs, and capping at 300 words per chunk. Each chunk is embedded and stored in memory for retrieval.
 
-## Chunking Strategies Benchmarked
-- Naive baseline: full document in system prompt every request
-- Sliding window: fixed word-count windows with overlap to preserve context at boundaries
-- Semantic chunking: paragraph and sentence boundary aware splitting
-- Hybrid BM25 + vector: keyword matching combined with semantic similarity, re-ranked by blended score
+For streaming I have a FastAPI endpoint that calls the OpenAI API with streaming enabled and returns Server-Sent Events so the frontend receives tokens as they are generated, giving sub-200ms time to first token. Conversational memory works by storing the last 10 messages per session as JSON in an S3 bucket, loading them on each turn and saving back after each response, which enables full multi-turn context across page refreshes.
 
-## Streaming
-- FastAPI /chat/stream endpoint uses stream=True on OpenAI API call
-- Returns Server-Sent Events (SSE) — tokens streamed to frontend as they are generated
-- Frontend reads the SSE stream token by token and appends to the assistant bubble in real time
-- Gives sub-200ms time to first token, making responses feel instant
-
-## Conversational Memory
-- Each chat session gets a UUID as session ID
-- Every turn the last 10 messages are loaded from S3 and passed as conversation history to OpenAI
-- After each response the updated conversation is saved back to S3
-- This enables full multi-turn context-aware dialogue across page refreshes
-
-## AWS Infrastructure (Terraform)
-- Lambda function runs the FastAPI app via Mangum
-- API Gateway routes HTTP requests to Lambda
-- S3 bucket stores conversation history JSON files
-- IAM role scoped to only the permissions Lambda needs
-- All resources defined in Terraform for reproducible deployments
-
-## Key Achievements
-- Live in production at dwishank.in
-- Sub 2 second end-to-end latency
-- 45% improvement in answer relevance over naive baseline
-- Fully serverless — scales to zero when not in use, no idle cost
+All infrastructure — Lambda, API Gateway, S3, and IAM roles — is provisioned with Terraform for reproducible deployments. The frontend is Next.js with TypeScript deployed on Vercel. End-to-end latency is under 2 seconds and the whole system scales to zero when not in use so there is no idle cost.
 
 
-# Real-Time AI Voice Assistant — Hugging Face Space
+PROJECT: Real-Time AI Voice Assistant — Hugging Face Space
 
-## Overview
-A real-time voice assistant deployed as a Hugging Face Space. The user speaks into the microphone, the audio is transcribed using OpenAI Whisper, and the response is streamed token by token from GPT-4o. Built with Gradio and hosted on Hugging Face Spaces.
+This is a real-time voice assistant I deployed as a Hugging Face Space. You speak into your microphone, the audio is transcribed by OpenAI Whisper, and then GPT-4o streams back a response token by token. The live demo is at https://huggingface.co/spaces/dwishank/RealTimeAIVoiceAssistant.
 
-## Live Demo
-Deployed at: https://huggingface.co/spaces/dwishank/RealTimeAIVoiceAssistant
+I built it with Gradio using the Blocks API. The user records audio via the browser microphone, the audio file is sent to the OpenAI Whisper API for transcription, and the transcript appears immediately in the UI while GPT-4o begins generating. I used Gradio's generator pattern with yield to stream partial tokens back to the interface, so the response box updates live as tokens arrive, similar to how ChatGPT streams responses. Full conversation history is maintained in Gradio State across turns and a reset button clears it for a fresh session.
 
-## Tech Stack
-- Framework: Gradio (Blocks API) for the web UI
-- ASR: OpenAI Whisper (whisper-1) for speech to text
-- LLM: GPT-4o with streaming for response generation
-- Hosting: Hugging Face Spaces
-- API key managed via HF Space secrets
+I kept system prompt responses to 1 to 3 sentences by default and avoided markdown since the output is meant to be read aloud, not rendered. The entire voice-to-text-to-streaming-LLM pipeline runs in under 150 lines of Python with no infrastructure to manage since Hugging Face Spaces handles all the hosting.
 
-## Pipeline
-- User records audio via browser microphone using Gradio's Audio component
-- Audio file sent to OpenAI Whisper API for transcription
-- Transcript shown immediately in the UI while GPT-4o begins generating
-- GPT-4o called with stream=True — partial tokens yielded back to Gradio in real time
-- Response box updates live as tokens arrive, like ChatGPT streaming
-- Full conversation history maintained in Gradio State across turns
-- Reset button clears history and starts a fresh session
 
-## Streaming Implementation
-- Used Gradio generator functions (yield) to stream partial responses
-- Each chunk from the OpenAI stream is appended to the partial string and yielded back to the UI
-- Gradio updates the response textbox live on each yield
-- Conversation history is only committed after the full response is received
+PROJECT: Sidekick — Agentic Personal Co-Worker
 
-## System Prompt Design
-- Responses kept to 1-3 sentences by default — optimised for voice/audio consumption
-- No markdown or bullet points since output is meant to be read aloud
-- User can ask for more detail explicitly
+Sidekick is an agentic AI assistant I built that acts as a personal co-worker capable of autonomously completing multi-step tasks. It runs as a Gradio web app and combines a LangGraph agent loop with a suite of real-world tools, so it can browse the web, write and execute Python code, manage files, search Wikipedia, send emails via SendGrid, and push mobile notifications via Pushover.
 
-## Key Achievements
-- Full voice to text to streaming LLM pipeline in under 150 lines of Python
-- Real-time token streaming via Gradio generator pattern
-- Persistent multi-turn conversation history within a session
-- Deployed publicly on Hugging Face Spaces with zero infrastructure management
+The architecture uses a worker-evaluator loop built on LangGraph. The worker node is GPT-4o-mini bound to all available tools and it keeps working on a task — calling tools, reasoning over results, and iterating — until it either has a question for the user or believes it has finished. Once the worker produces a final response, an evaluator node independently judges whether the success criteria provided by the user have actually been met. If they have not, the evaluator feeds back specific criticism and the worker tries again. If the evaluator decides user input is needed — because the task is ambiguous or the agent is stuck — it surfaces that to the user instead of looping indefinitely.
+
+For browser automation I used Playwright via LangChain's PlayWrightBrowserToolkit, which gives the agent a full set of tools to navigate pages, click elements, extract content, and fill forms in a real Chromium browser. The file management toolkit gives it read and write access to a sandboxed local directory. Python execution uses LangChain's PythonREPLTool so the agent can write and run arbitrary code mid-task and use the output to inform its next step.
+
+Conversational memory is handled by LangGraph's MemorySaver checkpointer keyed on a per-session UUID, so the agent maintains full context across multiple turns within a session. The Gradio interface exposes a chat window, a success criteria input, a Go button, and a Reset button that spins up a fresh agent instance and cleans up the browser session cleanly.
